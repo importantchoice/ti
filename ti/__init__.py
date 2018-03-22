@@ -336,8 +336,12 @@ def action_csv():
             print(extract_day(item['start']), sep, item['name'], sep, format_csv_time(item['start']), sep,
                   format_csv_time(item['end']), sep, remove_seconds(duration), sep, notes, sep)
 
+
 def format_time(duration_timedelta):
-    hours, rem = divmod(duration_timedelta.seconds, 3600)
+    return format_time_seconds(duration_timedelta.seconds)
+
+def format_time_seconds(duration_secs):
+    hours, rem = divmod(duration_secs, 3600)
     mins, secs = divmod(rem, 60)
     formatted_time_str = str(hours).rjust(2, str('0'))+ ':' +str(mins).rjust(2, str('0'))
     if hours >= 8:
@@ -346,12 +350,14 @@ def format_time(duration_timedelta):
         return red(formatted_time_str)
 
 def action_report(activity):
-    print('Displaying all entries for ', yellow(activity) , ' grouped by day:', sep='')
+    print ('Displaying all entries for ', yellow(activity) , ' grouped by day:', sep='')
+    print ()
     sep = ' - '
     data = store.load()
     work = data['work']
     report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : ''})
 
+    total_time = 0
     for item in work:
         if item['name'] == activity and 'end' in item:
             start_time = parse_isotime(item['start'])
@@ -359,9 +365,16 @@ def action_report(activity):
             duration = parse_isotime(item['end']) - parse_isotime(item['start'])
             report[day]['sum'] += duration
             report[day]['notes'] += get_notes_from_workitem(item);
+            total_time += duration.seconds
+
 
     for date, details in sorted(report.items()):
         print(date, sep, format_time(details['sum']) , sep , details['notes'], sep="")
+
+    should_hours = 8 * len(report.items());
+    should_hours_str = str(should_hours) + ':00'
+    print ()
+    print ('Based on your current entries, you should have logged ', green(should_hours_str) , ' ; you instead logged ' , format_time_seconds(total_time) , sep='')
 
 
 def action_edit():
