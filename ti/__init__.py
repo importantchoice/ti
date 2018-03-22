@@ -35,11 +35,9 @@ import re
 import subprocess
 import sys
 import tempfile
-import calendar
 
-import pytz # $ pip install pytz
-from tzlocal import get_localzone # $ pip install tzlocal
-
+import pytz  # $ pip install pytz
+from tzlocal import get_localzone  # $ pip install tzlocal
 
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -97,7 +95,9 @@ class JsonStore(object):
         with open(self.filename, 'w') as f:
             json.dump(data, f, separators=(',', ': '), indent=2)
 
-local_tz = get_localzone() 
+
+local_tz = get_localzone()
+
 
 def red(str):
     if use_color:
@@ -250,7 +250,7 @@ def action_status():
     now_time_str = datetime.now().strftime('%H:%M');
 
     print('You have been working on {0} for {1}, since {2}; It is now {3}.'
-          .format(green(current['name']), yellow(diff), 
+          .format(green(current['name']), yellow(diff),
                   yellow(start_h_m), yellow(now_time_str)))
 
     if 'notes' in current:
@@ -266,9 +266,10 @@ def action_log(period):
 
     for item in work:
         start_time = parse_isotime(item['start'])
+
         if 'end' in item:
             log[item['name']]['delta'] += (
-                parse_isotime(item['end']) - start_time)
+                    parse_isotime(item['end']) - start_time)
         else:
             log[item['name']]['delta'] += datetime.utcnow() - start_time
             current = item['name']
@@ -294,22 +295,33 @@ def action_log(period):
         if secs:
             tmsg.append(str(secs) + ' second' + ('s' if secs > 1 else ''))
 
+        print (tmsg)
         log[name]['tmsg'] = ', '.join(tmsg)[::-1].replace(',', '& ', 1)[::-1]
 
     for name, item in sorted(log.items(), key=(lambda x: x[0]), reverse=True):
         print(ljust_with_color(name, name_col_len), ' ∙∙ ', item['tmsg'],
               end=' ← working\n' if current == name else '\n')
 
+
 def format_csv_time(somedatetime):
     local_dt = isotime_utc_to_local(somedatetime)
     return local_dt.strftime('%H:%M')
+
 
 def extract_day(datetime_local_tz):
     local_dt = isotime_utc_to_local(datetime_local_tz)
     return local_dt.strftime('%Y-%m-%d')
 
+
 def remove_seconds(timedelta):
     return ':'.join(str(timedelta).split(':')[:2])
+
+def get_notes_from_workitem(item):
+    notes = ''
+    if 'notes' in item:
+        for note in item['notes']:
+            notes += note + ' ; '
+    return notes
 
 def action_csv():
     sep = '|'
@@ -319,12 +331,37 @@ def action_csv():
     for item in work:
         start_time = parse_isotime(item['start'])
         if 'end' in item:
-            notes=''
-            if 'notes' in item:
-                for note in item['notes']:
-                    notes+= note + ' ; '
+            notes = get_notes_from_workitem(item)
             duration = parse_isotime(item['end']) - parse_isotime(item['start'])
-            print(extract_day(item['start']), sep, item['name'],sep , format_csv_time(item['start']) ,sep , format_csv_time(item['end']), sep, remove_seconds(duration), sep, notes , sep)
+            print(extract_day(item['start']), sep, item['name'], sep, format_csv_time(item['start']), sep,
+                  format_csv_time(item['end']), sep, remove_seconds(duration), sep, notes, sep)
+
+def format_time(duration_timedelta):
+    hours, rem = divmod(duration_timedelta.seconds, 3600)
+    mins, secs = divmod(rem, 60)
+    formatted_time_str = str(hours).rjust(2, str('0'))+ ':' +str(mins).rjust(2, str('0'))
+    if hours >= 8:
+        return green(formatted_time_str)
+    else:
+        return red(formatted_time_str)
+
+def action_report(activity):
+    print('Displaying all entries for ', yellow(activity) , ' grouped by day:', sep='')
+    sep = ' - '
+    data = store.load()
+    work = data['work']
+    report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : ''})
+
+    for item in work:
+        if item['name'] == activity and 'end' in item:
+            start_time = parse_isotime(item['start'])
+            day = extract_day(item['start'])
+            duration = parse_isotime(item['end']) - parse_isotime(item['start'])
+            report[day]['sum'] += duration
+            report[day]['notes'] += get_notes_from_workitem(item);
+
+    for date, details in sorted(report.items()):
+        print(date, sep, format_time(details['sum']) , sep , details['notes'], sep="")
 
 
 def action_edit():
@@ -372,20 +409,23 @@ def ensure_working():
 def to_datetime(timestr):
     return parse_engtime(timestr).isoformat() + 'Z'
 
+
 def utc_to_local(utc_dt):
     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
     return local_tz.normalize(local_dt)
 
+
 def local_to_utc(local_dt):
     local_dt_dst = local_tz.localize(local_dt)
-    utc_dt = local_dt_dst.astimezone (pytz.utc)
+    utc_dt = local_dt_dst.astimezone(pytz.utc)
     return utc_dt.replace(tzinfo=None)
+
 
 def isotime_utc_to_local(isotime_utc):
     return utc_to_local(parse_isotime(isotime_utc))
 
-def parse_engtime(timestr):
 
+def parse_engtime(timestr):
     now = datetime.utcnow()
     if not timestr or timestr.strip() == 'now':
         return now
@@ -394,9 +434,9 @@ def parse_engtime(timestr):
         settime = datetime.strptime(timestr, "%H:%M")
         x = now.replace(hour=settime.hour, minute=settime.minute, second=0, microsecond=1)
         return local_to_utc(x)
-    except Exception, e:
+    except Exception as e:
         print(e)
-        #pass
+        # pass
 
     match = re.match(r'(\d+|a) \s* (s|secs?|seconds?) \s+ ago $',
                      timestr, re.X)
@@ -404,7 +444,7 @@ def parse_engtime(timestr):
         n = match.group(1)
         seconds = 1 if n == 'a' else int(n)
         diff = now - timedelta(seconds=seconds)
-        print (diff)
+        print(diff)
         print(isotime_utc_to_local(diff.isoformat() + 'Z'))
         return now - timedelta(seconds=seconds)
 
@@ -475,7 +515,7 @@ def parse_args(argv=sys.argv):
         fn = action_edit
         args = {}
 
-    elif head in ['o', 'on' , 'start']:
+    elif head in ['o', 'on', 'start']:
         if not tail:
             raise BadArguments("Need the name of whatever you are working on.")
 
@@ -500,6 +540,12 @@ def parse_args(argv=sys.argv):
     elif head in ['csv']:
         fn = action_csv
         args = {}
+
+    elif head in ['report']:
+        fn = action_report
+        if not tail:
+            raise BadArguments('Please provide the name of the activity to generate the report for')
+        args = {'activity': tail[0]}
 
     elif head in ['t', 'tag']:
         if not tail:
