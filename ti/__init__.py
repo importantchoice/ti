@@ -308,10 +308,13 @@ def format_csv_time(somedatetime):
     return local_dt.strftime('%H:%M')
 
 
-def extract_day(datetime_local_tz):
+def extract_day_custom_formatter(datetime_local_tz, format_string):
     local_dt = isotime_utc_to_local(datetime_local_tz)
-    return local_dt.strftime('%Y-%m-%d')
+    return local_dt.strftime(format_string)
 
+
+def extract_day(datetime_local_tz):
+    return extract_day_custom_formatter(datetime_local_tz, '%Y-%m-%d')
 
 def remove_seconds(timedelta):
     return ':'.join(str(timedelta).split(':')[:2])
@@ -355,7 +358,7 @@ def action_report(activity):
     sep = ' - '
     data = store.load()
     work = data['work']
-    report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : ''})
+    report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : '', 'weekday' : ''})
 
     total_time = 0
     for item in work:
@@ -365,11 +368,12 @@ def action_report(activity):
             duration = parse_isotime(item['end']) - parse_isotime(item['start'])
             report[day]['sum'] += duration
             report[day]['notes'] += get_notes_from_workitem(item);
+            report[day]['weekday'] = extract_day_custom_formatter(item['start'],'%a')
             total_time += duration.seconds
 
 
     for date, details in sorted(report.items()):
-        print(date, sep, format_time(details['sum']) , sep , details['notes'], sep="")
+        print(details['weekday'], sep , date, sep, format_time(details['sum']) , sep , details['notes'], sep="")
 
     should_hours = 8 * len(report.items());
     should_hours_str = str(should_hours) + ':00'
