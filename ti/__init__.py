@@ -365,7 +365,7 @@ def get_max_date(date_1, date_2):
 def action_report(activity):
     print ('Displaying all entries for ', yellow(activity) , ' grouped by day:', sep='')
     print ()
-    sep = ' - '
+    sep = ' | '
     data = store.load()
     work = data['work']
     report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : '', 'weekday' : '', 'start_time': None, 'end_time' : None})
@@ -385,16 +385,23 @@ def action_report(activity):
             total_time += duration.seconds
 
 
+    print('weekday', sep, 'date', sep, 'total duration', sep, 'start time', sep, 'end time', sep, 'break', sep, 'description', sep)
+
     for date, details in sorted(report.items()):
         start_time=utc_to_local(details['start_time']).strftime("%H:%M")
         end_time = utc_to_local(details['end_time']).strftime("%H:%M")
-        print(details['weekday'], sep , date, sep, start_time ,sep, format_time(details['sum']) , sep , end_time,sep,details['notes'], sep="")
+        break_duration = get_break_duration (details['start_time'], details['end_time'], details['sum'])
+        print(details['weekday'], sep , date, sep, format_time(details['sum']),sep, start_time , sep , end_time, sep, format_time(break_duration), sep,details['notes'], sep="")
 
     should_hours = 8 * len(report.items());
     should_hours_str = str(should_hours) + ':00'
     print ()
     print ('Based on your current entries, you should have logged ', green(should_hours_str) , ' ; you instead logged ' , format_time_seconds(total_time) , sep='')
 
+
+def get_break_duration(start_time, end_time, net_work_duration):
+    total_work_duration = end_time-start_time
+    return total_work_duration - net_work_duration
 
 def action_edit():
     if "EDITOR" not in os.environ:
