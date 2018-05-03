@@ -352,28 +352,43 @@ def format_time_seconds(duration_secs):
     else:
         return red(formatted_time_str)
 
+def get_min_date(date_1, date_2):
+    if date_1 is None:
+        date_1=parse_isotime('2022-01-01T00:00:00.000001Z')
+    return date_1 if date_1 < date_2 else date_2
+
+def get_max_date(date_1, date_2):
+    if date_1 is None:
+        date_1=parse_isotime('2015-01-01T00:00:00.000001Z')
+    return date_1 if date_1 > date_2 else date_2
+
 def action_report(activity):
     print ('Displaying all entries for ', yellow(activity) , ' grouped by day:', sep='')
     print ()
     sep = ' - '
     data = store.load()
     work = data['work']
-    report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : '', 'weekday' : ''})
+    report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : '', 'weekday' : '', 'start_time': None, 'end_time' : None})
 
     total_time = 0
     for item in work:
         if item['name'] == activity and 'end' in item:
             start_time = parse_isotime(item['start'])
+            end_time = parse_isotime(item['end'])
             day = extract_day(item['start'])
             duration = parse_isotime(item['end']) - parse_isotime(item['start'])
             report[day]['sum'] += duration
             report[day]['notes'] += get_notes_from_workitem(item);
             report[day]['weekday'] = extract_day_custom_formatter(item['start'],'%a')
+            report[day]['start_time'] = get_min_date(report[day]['start_time'], start_time)
+            report[day]['end_time'] = get_max_date(report[day]['end_time'], end_time)
             total_time += duration.seconds
 
 
     for date, details in sorted(report.items()):
-        print(details['weekday'], sep , date, sep, format_time(details['sum']) , sep , details['notes'], sep="")
+        start_time=utc_to_local(details['start_time']).strftime("%H:%M")
+        end_time = utc_to_local(details['end_time']).strftime("%H:%M")
+        print(details['weekday'], sep , date, sep, start_time ,sep, format_time(details['sum']) , sep , end_time,sep,details['notes'], sep="")
 
     should_hours = 8 * len(report.items());
     should_hours_str = str(should_hours) + ':00'
