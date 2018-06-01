@@ -75,6 +75,8 @@ class BadArguments(TIError):
     """The command line arguments passed are not valid."""
 
 
+TI_TODAY_ENV_VAR = "TI_CURRENT_DAY"
+
 class JsonStore(object):
 
     def __init__(self, filename):
@@ -403,6 +405,16 @@ def get_break_duration(start_time, end_time, net_work_duration):
     total_work_duration = end_time-start_time
     return total_work_duration - net_work_duration
 
+#TODO does not work as intended. we need a different solition here.
+def action_setdate(today):
+    os.environ[TI_TODAY_ENV_VAR]=today
+    #print ('set the current day to ', os.getenv(TI_TODAY_ENV_VAR, None))
+
+def get_current_day():
+    today_value = os.getenv(TI_TODAY_ENV_VAR, None)
+    #print('...',today_value)
+    return today_value
+
 def action_edit():
     if "EDITOR" not in os.environ:
         raise NoEditor("Please set the 'EDITOR' environment variable")
@@ -472,6 +484,10 @@ def parse_engtime(timestr):
     try:
         settime = datetime.strptime(timestr, "%H:%M")
         x = now.replace(hour=settime.hour, minute=settime.minute, second=0, microsecond=1)
+        if get_current_day() is not None:
+            currentday = datetime.strptime(get_current_day(), "%d.%m.%Y")
+            y = x.replace(day=currentday.day, month=currentday.month, year=currentday.year)
+            return local_to_utc(y)
         return local_to_utc(x)
     except Exception as e:
         print(e)
@@ -609,7 +625,11 @@ def parse_args(argv=sys.argv):
             'name': tail[0],
             'time': to_datetime(' '.join(tail[1:])),
         }
-
+    elif head in ['setdate', 'sd']:
+        if not tail:
+            raise BadArguments("Need the date you want to set.")
+        fn = action_setdate
+        args = { 'today': tail[0] }
     else:
         raise BadArguments("I don't understand %r" % (head,))
 
