@@ -36,6 +36,8 @@ import subprocess
 import sys
 import tempfile
 
+from dateutils import *
+
 import pytz  # $ pip install pytz
 from tzlocal import get_localzone  # $ pip install tzlocal
 
@@ -461,9 +463,9 @@ def to_datetime(timestr):
     return parse_engtime(timestr).isoformat() + 'Z'
 
 
-def utc_to_local(utc_dt):
-    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
-    return local_tz.normalize(local_dt)
+# def utc_to_local(utc_dt):
+#     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+#     return local_tz.normalize(local_dt)
 
 
 def local_to_utc(local_dt):
@@ -472,8 +474,6 @@ def local_to_utc(local_dt):
     return utc_dt.replace(tzinfo=None)
 
 
-def isotime_utc_to_local(isotime_utc):
-    return utc_to_local(parse_isotime(isotime_utc))
 
 
 def parse_engtime(timestr):
