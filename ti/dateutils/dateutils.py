@@ -17,5 +17,5 @@ def isotime_utc_to_local(isotime_utc):
     return utc_to_local(parse_isotime(isotime_utc))
 
 
-def parse_isotime(isotime):
-    return datetime.strptime(isotime, '%Y-%m-%dT%H:%M:%S.%fZ')
+def parse_isotime(isotime_str):
+    return datetime.strptime(isotime_str, '%Y-%m-%dT%H:%M:%S.%fZ')

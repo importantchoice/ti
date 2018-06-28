@@ -34,6 +34,8 @@ class TestDateutils(TestCase):
         self.assertEqual("2018-06-01T19:00:00.000001+02:00", isotime_local.isoformat())
 
     def test_parse_isotime(self):
-        isotime_now = datetime.now().isoformat()+"Z"
-        isotime_string = parse_isotime(isotime_now)
-        self.assertEqual("false", "false")
+        now_really = datetime.now()
+        isotime_now = now_really.isoformat()+"Z"
+        isotime_parsed_from_string = parse_isotime(isotime_now)
+        self.assertEqual(isotime_parsed_from_string, now_really)
+
