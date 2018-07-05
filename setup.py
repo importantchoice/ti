@@ -33,7 +33,7 @@ setup(
             "ti = ti:main",
         ]
     },
-    install_requires=["colorama", "pyyaml"],
+    install_requires=["colorama", "pyyaml", 'tzlocal'],
     setup_requires=["pytest-runner"] if testing else [],
     tests_require=["pytest", "cram", "pytest-cram"],
     extras_require={

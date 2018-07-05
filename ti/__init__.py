@@ -29,124 +29,21 @@ Options:
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
-import os
-import re
-import subprocess
 import sys
-import tempfile
 
 from dateutils import *
-
-import pytz  # $ pip install pytz
-from tzlocal import get_localzone  # $ pip install tzlocal
+from exceptions import *
+from datasources import JsonStore
 
 from datetime import datetime, timedelta
 from collections import defaultdict
-from os import path
-
-import yaml
-from colorama import Fore
 
 
-class TIError(Exception):
-    """Errors raised by TI."""
+from ti.dataaccess.utils import get_data_store
 
+from ti.colors import *
 
-class AlreadyOn(TIError):
-    """Already working on that task."""
-
-
-class NoEditor(TIError):
-    """No $EDITOR set."""
-
-
-class InvalidYAML(TIError):
-    """No $EDITOR set."""
-
-
-class NoTask(TIError):
-    """Not working on a task yet."""
-
-
-class BadTime(TIError):
-    """Time string can't be parsed."""
-
-
-class BadArguments(TIError):
-    """The command line arguments passed are not valid."""
-
-
-TI_TODAY_ENV_VAR = "TI_CURRENT_DAY"
-
-class JsonStore(object):
-
-    def __init__(self, filename):
-        self.filename = filename
-
-    def load(self):
-
-        if path.exists(self.filename):
-            with open(self.filename) as f:
-                data = json.load(f)
-
-        else:
-            data = {'work': [], 'interrupt_stack': []}
-
-        return data
-
-    def dump(self, data):
-        with open(self.filename, 'w') as f:
-            json.dump(data, f, separators=(',', ': '), indent=2)
-
-
-local_tz = get_localzone()
-
-
-def red(str):
-    if use_color:
-        return Fore.RED + str + Fore.RESET
-    else:
-        return str
-
-
-def green(str):
-    if use_color:
-        return Fore.GREEN + str + Fore.RESET
-    else:
-        return str
-
-
-def yellow(str):
-    if use_color:
-        return Fore.YELLOW + str + Fore.RESET
-    else:
-        return str
-
-
-def blue(str):
-    if use_color:
-        return Fore.BLUE + str + Fore.RESET
-    else:
-        return str
-
-
-color_regex = re.compile("(\x9B|\x1B\\[)[0-?]*[ -\/]*[@-~]")
-
-
-def strip_color(str):
-    """Strip color from string."""
-    return color_regex.sub("", str)
-
-
-def len_color(str):
-    """Compute how long the color escape sequences in the string are."""
-    return len(str) - len(strip_color(str))
-
-
-def ljust_with_color(str, n):
-    """ljust string that might contain color."""
-    return str.ljust(n + len_color(str))
+from ti.actions.write import *
 
 
 def action_on(name, time):
@@ -155,7 +52,7 @@ def action_on(name, time):
 
     if work and 'end' not in work[-1]:
         raise AlreadyOn("You are already working on %s. Stop it or use a "
-                        "different sheet." % (yellow(work[-1]['name']),))
+                        "different sheet." % (colorizer.yellow(work[-1]['name']),))
 
     entry = {
         'name': name,
@@ -176,7 +73,7 @@ def action_fin(time, back_from_interrupt=True):
     current = data['work'][-1]
     current['end'] = time
     store.dump(data)
-    print('So you stopped working on ' + red(current['name']) + '.')
+    print('So you stopped working on ' + colorizer.red(current['name']) + '.')
 
     if back_from_interrupt and len(data['interrupt_stack']) > 0:
         name = data['interrupt_stack'].pop()['name']
@@ -220,7 +117,7 @@ def action_note(content):
 
     store.dump(data)
 
-    print('Yep, noted to ' + yellow(current['name']) + '.')
+    print('Yep, noted to ' + colorizer.yellow(current['name']) + '.')
 
 
 def action_tag(tags):
@@ -254,8 +151,8 @@ def action_status():
     now_time_str = datetime.now().strftime('%H:%M');
 
     print('You have been working on {0} for {1}, since {2}; It is now {3}.'
-          .format(green(current['name']), yellow(diff),
-                  yellow(start_h_m), yellow(now_time_str)))
+          .format(green(current['name']), colorizer.yellow(diff),
+                  colorizer.yellow(start_h_m), colorizer.yellow(now_time_str)))
 
     if 'notes' in current:
         for note in current['notes']:
@@ -299,7 +196,7 @@ def action_log(period):
         if secs:
             tmsg.append(str(secs) + ' second' + ('s' if secs > 1 else ''))
 
-        print (tmsg)
+        print(tmsg)
         log[name]['tmsg'] = ', '.join(tmsg)[::-1].replace(',', '& ', 1)[::-1]
 
     for name, item in sorted(log.items(), key=(lambda x: x[0]), reverse=True):
@@ -320,8 +217,10 @@ def extract_day_custom_formatter(datetime_local_tz, format_string):
 def extract_day(datetime_local_tz):
     return extract_day_custom_formatter(datetime_local_tz, '%Y-%m-%d')
 
+
 def remove_seconds(timedelta):
     return ':'.join(str(timedelta).split(':')[:2])
+
 
 def get_notes_from_workitem(item):
     notes = ''
@@ -329,6 +228,7 @@ def get_notes_from_workitem(item):
         for note in item['notes']:
             notes += note + ' ; '
     return notes
+
 
 def action_csv():
     sep = '|'
@@ -347,32 +247,36 @@ def action_csv():
 def format_time(duration_timedelta):
     return format_time_seconds(duration_timedelta.seconds)
 
+
 def format_time_seconds(duration_secs):
     hours, rem = divmod(duration_secs, 3600)
     mins, secs = divmod(rem, 60)
-    formatted_time_str = str(hours).rjust(2, str('0'))+ ':' +str(mins).rjust(2, str('0'))
+    formatted_time_str = str(hours).rjust(2, str('0')) + ':' + str(mins).rjust(2, str('0'))
     if hours >= 8:
-        return green(formatted_time_str)
+        return colorizer.green(formatted_time_str)
     else:
-        return red(formatted_time_str)
+        return colorizer.red(formatted_time_str)
+
 
 def get_min_date(date_1, date_2):
     if date_1 is None:
-        date_1=parse_isotime('2022-01-01T00:00:00.000001Z')
+        date_1 = parse_isotime('2022-01-01T00:00:00.000001Z')
     return date_1 if date_1 < date_2 else date_2
+
 
 def get_max_date(date_1, date_2):
     if date_1 is None:
-        date_1=parse_isotime('2015-01-01T00:00:00.000001Z')
+        date_1 = parse_isotime('2015-01-01T00:00:00.000001Z')
     return date_1 if date_1 > date_2 else date_2
 
+
 def action_report(activity):
-    print ('Displaying all entries for ', yellow(activity) , ' grouped by day:', sep='')
-    print ()
+    print('Displaying all entries for ', colorizer.yellow(activity), ' grouped by day:', sep='')
+    print()
     sep = ' | '
     data = store.load()
     work = data['work']
-    report =  defaultdict(lambda: {'sum': timedelta(), 'notes' : '', 'weekday' : '', 'start_time': None, 'end_time' : None})
+    report = defaultdict(lambda: {'sum': timedelta(), 'notes': '', 'weekday': '', 'start_time': None, 'end_time': None})
 
     total_time = 0
     for item in work:
@@ -383,66 +287,59 @@ def action_report(activity):
             duration = parse_isotime(item['end']) - parse_isotime(item['start'])
             report[day]['sum'] += duration
             report[day]['notes'] += get_notes_from_workitem(item);
-            report[day]['weekday'] = extract_day_custom_formatter(item['start'],'%a')
+            report[day]['weekday'] = extract_day_custom_formatter(item['start'], '%a')
             report[day]['start_time'] = get_min_date(report[day]['start_time'], start_time)
             report[day]['end_time'] = get_max_date(report[day]['end_time'], end_time)
             total_time += duration.seconds
 
-
-    print('weekday', sep, 'date', sep, 'total duration', sep, 'start time', sep, 'end time', sep, 'break', sep, 'description', sep)
+    print('weekday', sep, 'date', sep, 'total duration', sep, 'start time', sep, 'end time', sep, 'break', sep,
+          'description', sep)
 
     for date, details in sorted(report.items()):
-        start_time=utc_to_local(details['start_time']).strftime("%H:%M")
+        start_time = utc_to_local(details['start_time']).strftime("%H:%M")
         end_time = utc_to_local(details['end_time']).strftime("%H:%M")
-        break_duration = get_break_duration (details['start_time'], details['end_time'], details['sum'])
-        print(details['weekday'], sep , date, sep, format_time(details['sum']),sep, start_time , sep , end_time, sep, format_time(break_duration), sep,details['notes'], sep="")
+        break_duration = get_break_duration(details['start_time'], details['end_time'], details['sum'])
+        print(details['weekday'], sep, date, sep, format_time(details['sum']), sep, start_time, sep, end_time, sep,
+              format_time(break_duration), sep, details['notes'], sep="")
 
     should_hours = 8 * len(report.items());
     should_hours_str = str(should_hours) + ':00'
-    print ()
-    print ('Based on your current entries, you should have logged ', green(should_hours_str) , ' ; you instead logged ' , format_time_seconds(total_time) , sep='')
+    print()
+    print('Based on your current entries, you should have logged ', green(should_hours_str), ' ; you instead logged ',
+          format_time_seconds(total_time), sep='')
 
 
 def get_break_duration(start_time, end_time, net_work_duration):
-    total_work_duration = end_time-start_time
+    total_work_duration = end_time - start_time
     return total_work_duration - net_work_duration
 
-#TODO does not work as intended. we need a different solition here.
-def action_setdate(today):
-    os.environ[TI_TODAY_ENV_VAR]=today
-    #print ('set the current day to ', os.getenv(TI_TODAY_ENV_VAR, None))
 
-def get_current_day():
-    today_value = os.getenv(TI_TODAY_ENV_VAR, None)
-    #print('...',today_value)
-    return today_value
-
-def action_edit():
-    if "EDITOR" not in os.environ:
-        raise NoEditor("Please set the 'EDITOR' environment variable")
-
-    data = store.load()
-    yml = yaml.safe_dump(data, default_flow_style=False, allow_unicode=True)
-
-    cmd = os.getenv('EDITOR')
-    fd, temp_path = tempfile.mkstemp(prefix='ti.')
-    with open(temp_path, "r+") as f:
-        f.write(yml.replace('\n- ', '\n\n- '))
-        f.seek(0)
-        subprocess.check_call(cmd + ' ' + temp_path, shell=True)
-        yml = f.read()
-        f.truncate()
-        f.close
-
-    os.close(fd)
-    os.remove(temp_path)
-
-    try:
-        data = yaml.load(yml)
-    except:
-        raise InvalidYAML("Oops, that YAML doesn't appear to be valid!")
-
-    store.dump(data)
+# def action_edit():
+#     if "EDITOR" not in os.environ:
+#         raise NoEditor("Please set the 'EDITOR' environment variable")
+#
+#     data = store.load()
+#     yml = yaml.safe_dump(data, default_flow_style=False, allow_unicode=True)
+#
+#     cmd = os.getenv('EDITOR')
+#     fd, temp_path = tempfile.mkstemp(suffix='.yml', prefix='ti.')
+#     with open(temp_path, "r+") as f:
+#         f.write(yml.replace('\n- ', '\n\n- '))
+#         f.seek(0)
+#         subprocess.check_call(cmd + ' ' + temp_path, shell=True)
+#         yml = f.read()
+#         f.truncate()
+#         f.close
+#
+#     os.close(fd)
+#     os.remove(temp_path)
+#
+#     try:
+#         data = yaml.load(yml)
+#     except:
+#         raise InvalidYAML("Oops, that YAML doesn't appear to be valid!")
+#
+#     store.dump(data)
 
 
 def is_working():
@@ -459,101 +356,11 @@ def ensure_working():
                  "See `ti -h` to know how to start working.")
 
 
-def to_datetime(timestr):
-    return parse_engtime(timestr).isoformat() + 'Z'
-
-
-# def utc_to_local(utc_dt):
-#     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
-#     return local_tz.normalize(local_dt)
-
-
-def local_to_utc(local_dt):
-    local_dt_dst = local_tz.localize(local_dt)
-    utc_dt = local_dt_dst.astimezone(pytz.utc)
-    return utc_dt.replace(tzinfo=None)
-
-
-
-
-def parse_engtime(timestr):
-    now = datetime.utcnow()
-    if not timestr or timestr.strip() == 'now':
-        return now
-
-    try:
-        settime = datetime.strptime(timestr, "%H:%M")
-        x = now.replace(hour=settime.hour, minute=settime.minute, second=0, microsecond=1)
-        if get_current_day() is not None:
-            currentday = datetime.strptime(get_current_day(), "%d.%m.%Y")
-            y = x.replace(day=currentday.day, month=currentday.month, year=currentday.year)
-            return local_to_utc(y)
-        return local_to_utc(x)
-    except Exception as e:
-        print(e)
-        # pass
-
-    match = re.match(r'(\d+|a) \s* (s|secs?|seconds?) \s+ ago $',
-                     timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        seconds = 1 if n == 'a' else int(n)
-        diff = now - timedelta(seconds=seconds)
-        print(diff)
-        print(isotime_utc_to_local(diff.isoformat() + 'Z'))
-        return now - timedelta(seconds=seconds)
-
-    match = re.match(r'(\d+|a) \s* (mins?|minutes?) \s+ ago $', timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        minutes = 1 if n == 'a' else int(n)
-        return now - timedelta(minutes=minutes)
-
-    match = re.match(r'(\d+|a|an) \s* (hrs?|hours?) \s+ ago $', timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        hours = 1 if n in ['a', 'an'] else int(n)
-        return now - timedelta(hours=hours)
-
-    raise BadTime("Don't understand the time %r" % (timestr,))
-
-
-def parse_isotime(isotime):
-    return datetime.strptime(isotime, '%Y-%m-%dT%H:%M:%S.%fZ')
-
-
-def timegap(start_time, end_time):
-    diff = end_time - start_time
-
-    mins = diff.total_seconds() // 60
-
-    if mins == 0:
-        return 'less than a minute'
-    elif mins == 1:
-        return 'a minute'
-    elif mins < 44:
-        return '{} minutes'.format(mins)
-    elif mins < 89:
-        return 'about an hour'
-    elif mins < 1439:
-        return 'about {} hours'.format(mins // 60)
-    elif mins < 2519:
-        return 'about a day'
-    elif mins < 43199:
-        return 'about {} days'.format(mins // 1440)
-    elif mins < 86399:
-        return 'about a month'
-    elif mins < 525599:
-        return 'about {} months'.format(mins // 43200)
-    else:
-        return 'more than a year'
-
-
 def parse_args(argv=sys.argv):
     global use_color
 
     if '--no-color' in argv:
-        use_color = False
+        colorizer.use_color(False)
         argv.remove('--no-color')
 
     # prog = argv[0]
@@ -629,7 +436,7 @@ def parse_args(argv=sys.argv):
         if not tail:
             raise BadArguments("Need the date you want to set.")
         fn = action_setdate
-        args = { 'today': tail[0] }
+        args = {'today': tail[0]}
     else:
         raise BadArguments("I don't understand %r" % (head,))
 
@@ -646,9 +453,11 @@ def main():
         sys.exit(1)
 
 
-store = JsonStore(os.getenv('SHEET_FILE', None) or
-                  os.path.expanduser('~/.ti-sheet'))
+store = get_data_store('JSON')
+
 use_color = True
+
+colorizer = Colorizer(True)
 
 if __name__ == '__main__':
     main()
