@@ -360,7 +360,7 @@ def parse_args(argv=sys.argv):
     global use_color
 
     if '--no-color' in argv:
-        colorizer.use_color(False)
+        colorizer.set_use_color(False)
         argv.remove('--no-color')
 
     # prog = argv[0]
