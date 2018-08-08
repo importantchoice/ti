@@ -6,7 +6,7 @@ from ti.exceptions import NonexistantDatasource
 default_datasource_type = 'JSON'
 
 json_default_env_var_name = 'SHEET_FILE'
-json_default_db_location = '~/.ti-sheet'
+json_default_db_location = '/tmp/.ti-sheet'
 
 
 def get_data_store(type):

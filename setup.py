@@ -19,7 +19,7 @@ testing = bool({"pytest", "test"}.intersection(sys.argv))
 
 setup(
     name="ti",
-    version="0.1.3.dev0",
+    version="0.3.1",
     author="Shrikant Sharat & Trevor Bekolay",
     author_email="tbekolay@gmail.com",
     packages=find_packages(),
@@ -33,7 +33,7 @@ setup(
             "ti = ti:main",
         ]
     },
-    install_requires=["colorama", "pyyaml", 'tzlocal'],
+    install_requires=["colorama", "pyyaml", 'tzlocal', 'pytz'],
     setup_requires=["pytest-runner"] if testing else [],
     tests_require=["pytest", "cram", "pytest-cram"],
     extras_require={

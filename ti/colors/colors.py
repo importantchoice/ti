@@ -36,19 +36,19 @@ class Colorizer(object):
         else:
             return str
 
-    def green(self,strstr):
+    def green(self,str):
         if self.use_color:
             return Fore.GREEN + str + Fore.RESET
         else:
             return str
 
-    def yellow(self,strstr):
+    def yellow(self,str):
         if self.use_color:
             return Fore.YELLOW + str + Fore.RESET
         else:
             return str
 
-    def blue(self,strstr):
+    def blue(self,str):
         if self.use_color:
             return Fore.BLUE + str + Fore.RESET
         else:
