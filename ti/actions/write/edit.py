@@ -3,7 +3,8 @@ import os
 import tempfile
 import subprocess
 
-from ti import get_data_store, InvalidYAML
+from ti import InvalidYAML
+from ti.dataaccess.utils import get_data_store
 from ti.exceptions import NoEditor
 
 
@@ -11,7 +12,7 @@ def action_edit():
     if "EDITOR" not in os.environ:
         raise NoEditor("Please set the 'EDITOR' environment variable")
 
-    store = get_data_store()
+    store = get_data_store('JSON')
 
     data = store.load()
     yml = yaml.safe_dump(data, default_flow_style=False, allow_unicode=True)

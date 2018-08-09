@@ -43,7 +43,7 @@ from ti.dataaccess.utils import get_data_store
 
 from ti.colors import *
 
-from ti.actions.write import *
+from ti.actions.write import edit
 
 
 def action_on(name, time):
@@ -374,7 +374,7 @@ def parse_args(argv=sys.argv):
         raise BadArguments()
 
     elif head in ['e', 'edit']:
-        fn = action_edit
+        fn = edit.action_edit
         args = {}
 
     elif head in ['o', 'on', 'start']:
