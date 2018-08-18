@@ -13,7 +13,7 @@ class JsonStore(object):
                 data = json.load(f)
 
         else:
-            data = {'work': [], 'interrupt_stack': []}
+            data = {'work': []}
 
         return data
 

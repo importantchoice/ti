@@ -27,8 +27,10 @@ def isotime_utc_to_local(isotime_utc):
 def parse_isotime(isotime_str):
     return datetime.strptime(isotime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
 
+
 def to_datetime(timestr):
     return parse_engtime(timestr).isoformat() + 'Z'
+
 
 def local_to_utc(local_dt):
     local_dt_dst = get_local_timezone().localize(local_dt)
@@ -39,12 +41,12 @@ def local_to_utc(local_dt):
 #TODO does not work as intended. we need a different solition here.
 def action_setdate(today):
     os.environ[TI_TODAY_ENV_VAR]=today
-    #print ('set the current day to ', os.getenv(TI_TODAY_ENV_VAR, None))
+#   print ('set the current day to ', os.getenv(TI_TODAY_ENV_VAR, None))
+
 
 def get_current_day():
     today_value = os.getenv(TI_TODAY_ENV_VAR, None)
     return today_value
-
 
 
 def parse_engtime(timestr):
@@ -87,7 +89,6 @@ def parse_engtime(timestr):
         return now - timedelta(hours=hours)
 
     raise BadTime("Don't understand the time %r" % (timestr,))
-
 
 
 def timegap(start_time, end_time):

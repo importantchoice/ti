@@ -4,8 +4,8 @@ import tempfile
 import subprocess
 
 from ti import InvalidYAML
+from ti import NoEditor
 from ti.dataaccess.utils import get_data_store
-from ti.exceptions import NoEditor
 
 
 def action_edit():
