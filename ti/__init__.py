@@ -41,6 +41,7 @@ from ti.dataaccess.utils import get_data_store
 from ti.colors import *
 
 from ti.actions.write import edit
+from ti.actions.write import start
 
 from ti.actions.read import log
 from ti.actions.read import csv
@@ -49,26 +50,7 @@ from ti.actions.read import report
 from ti.actions.read.utils import reportingutils
 
 
-def action_on(name, time):
-    data = get_store().load()
-    work = data['work']
-
-    if work and 'end' not in work[-1]:
-        raise AlreadyOn("You are already working on %s. Stop it or use a "
-                        "different sheet." % (colorizer.yellow(work[-1]['name']),))
-
-    entry = {
-        'name': name,
-        'start': time,
-    }
-
-    work.append(entry)
-    get_store().dump(data)
-
-    print('Start working on ' + colorizer.green(name) + '.')
-
-
-def action_fin(time):
+def action_stop(time):
     ensure_working()
 
     data = get_store().load()
@@ -172,14 +154,15 @@ def parse_args(argv=sys.argv):
         if not tail:
             raise BadArguments("Need the name of whatever you are working on.")
 
-        fn = action_on
+        fn = start.action_start
         args = {
+            'colorizer': colorizer,
             'name': tail[0],
             'time': to_datetime(' '.join(tail[1:])),
         }
 
     elif head in ['f', 'fin', 'stop']:
-        fn = action_fin
+        fn = action_stop
         args = {'time': to_datetime(' '.join(tail))}
 
     elif head in ['s', 'status']:
