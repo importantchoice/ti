@@ -1,6 +1,6 @@
 Setup
 
-  $ export SHEET_FILE=$CRAMTMP/sheet-actions
+  $ export SHEET_FILE=$CRAMTMP/sheet-status
   $ alias ti="ti --no-color"
 
 Status when not working
@@ -15,14 +15,14 @@ Status after on-ing a task
   $ ti on conqering-the-world
   Start working on conqering-the-world.
   $ ti status
-  You have been working on conqering-the-world for less than a minute.
+  You have been working on conqering-the-world for less than a minute.*$ (re)
 
 After adding tags
 
   $ ti tag awesome
   Okay, tagged current work with 1 tag.
   $ ti status
-  You have been working on conqering-the-world for less than a minute.
+  You have been working on conqering-the-world for less than a minute.*$ (re)
 
 Status after fin-ing it
 

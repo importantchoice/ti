@@ -1,6 +1,6 @@
 Setup
 
-  $ export SHEET_FILE=$CRAMTMP/sheet-actions
+  $ export SHEET_FILE=$CRAMTMP/sheet-note
   $ alias ti="ti --no-color"
 
 Note when not working

@@ -1,6 +1,6 @@
 Setup
 
-  $ export SHEET_FILE=$CRAMTMP/sheet-actions
+  $ export SHEET_FILE=$CRAMTMP/sheet-format
   $ alias ti="ti --no-color"
 
 Confirm no sheet file

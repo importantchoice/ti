@@ -1,6 +1,6 @@
 Setup
 
-  $ export SHEET_FILE=$CRAMTMP/sheet-actions
+  $ export SHEET_FILE=$CRAMTMP/sheet-fin
   $ alias ti="ti --no-color"
 
 Running fin when not working
