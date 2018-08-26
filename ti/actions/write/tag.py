@@ -1,6 +1,7 @@
 from ti.dataaccess.utils import get_data_store
 from ti.actions.utils.utils import ensure_working
 
+
 def action_tag(tags):
     data = get_data_store('JSON').load()
 

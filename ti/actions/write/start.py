@@ -1,4 +1,4 @@
-from ti import AlreadyOn
+from ti.exceptions import AlreadyOn
 from ti.dataaccess.utils import get_data_store
 
 

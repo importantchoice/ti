@@ -3,8 +3,8 @@ import os
 import tempfile
 import subprocess
 
-from ti import InvalidYAML
-from ti import NoEditor
+from ti.exceptions import InvalidYAML
+from ti.exceptions import NoEditor
 from ti.dataaccess.utils import get_data_store
 
 

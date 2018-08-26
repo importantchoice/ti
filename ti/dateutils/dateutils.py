@@ -38,12 +38,6 @@ def local_to_utc(local_dt):
     return utc_dt.replace(tzinfo=None)
 
 
-#TODO does not work as intended. we need a different solition here.
-def action_setdate(today):
-    os.environ[TI_TODAY_ENV_VAR]=today
-#   print ('set the current day to ', os.getenv(TI_TODAY_ENV_VAR, None))
-
-
 def get_current_day():
     today_value = os.getenv(TI_TODAY_ENV_VAR, None)
     return today_value

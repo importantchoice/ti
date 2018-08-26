@@ -5,8 +5,8 @@ ti is a simple and extensible time tracker for the command line. Visit the
 project page (http://ti.sharats.me) for more details.
 
 Usage:
-  ti (o|on) <name> [<time>...]
-  ti (f|fin) [<time>...]
+  ti (start) <name> [<time>...]
+  ti (stop) [<time>...]
   ti (s|status)
   ti (t|tag) <tag>...
   ti (n|note) <note-text>...
@@ -26,50 +26,29 @@ Options:
 """
 
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import sys
 
-from dateutils import *
-from exceptions import *
+from dateutils import to_datetime
+from exceptions import BadArguments, TIError
 
-from ti.dataaccess.utils import get_data_store
-
-from ti.colors import *
+from ti.colors import Colorizer
 
 from ti.actions.write import edit
 from ti.actions.write import start
 from ti.actions.write import stop
 from ti.actions.write import tag
+from ti.actions.write import note
 
 from ti.actions.read import log
 from ti.actions.read import csv
 from ti.actions.read import report
 from ti.actions.read import status
 
-from ti.actions.utils import reportingutils
-from ti.actions.utils.utils import ensure_working
-
-
-def action_note(content):
-    data = get_store().load()
-
-    ensure_working(data)
-
-    current = data['work'][-1]
-
-    if 'notes' not in current:
-        current['notes'] = [content]
-    else:
-        current['notes'].append(content)
-
-    get_store().dump(data)
-
-    print('Yep, noted to ' + colorizer.yellow(current['name']) + '.')
-
 
 def parse_args(argv=sys.argv):
 
+    colorizer = Colorizer(True)
     if '--no-color' in argv:
         colorizer.set_use_color(False)
         argv.remove('--no-color')
@@ -132,14 +111,9 @@ def parse_args(argv=sys.argv):
         if not tail:
             raise BadArguments("Please provide some text to be noted.")
 
-        fn = action_note
-        args = {'content': ' '.join(tail)}
+        fn = note.action_note
+        args = {'colorizer': colorizer, 'content': ' '.join(tail)}
 
-    elif head in ['setdate', 'sd']:
-        if not tail:
-            raise BadArguments("Need the date you want to set.")
-        fn = action_setdate
-        args = {'today': tail[0]}
     else:
         raise BadArguments("I don't understand %r" % (head,))
 
@@ -155,12 +129,6 @@ def main():
         print(msg, file=sys.stderr)
         sys.exit(1)
 
-
-def get_store():
-    return get_data_store('JSON')
-
-
-colorizer = Colorizer(True)
 
 if __name__ == '__main__':
     main()
