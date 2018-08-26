@@ -3,7 +3,7 @@ from ti.actions.utils.utils import ensure_working
 
 
 def action_tag(tags):
-    data = get_data_store('JSON').load()
+    data = get_data_store().load()
 
     ensure_working(data)
 
@@ -13,7 +13,7 @@ def action_tag(tags):
     current['tags'].update(tags)
     current['tags'] = list(current['tags'])
 
-    get_data_store('JSON').dump(data)
+    get_data_store().dump(data)
 
     tag_count = len(tags)
     print("Okay, tagged current work with %d tag%s."

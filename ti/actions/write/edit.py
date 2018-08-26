@@ -12,7 +12,7 @@ def action_edit():
     if "EDITOR" not in os.environ:
         raise NoEditor("Please set the 'EDITOR' environment variable")
 
-    store = get_data_store('JSON')
+    store = get_data_store()
 
     data = store.load()
     yml = yaml.safe_dump(data, default_flow_style=False, allow_unicode=True)

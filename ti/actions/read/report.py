@@ -11,7 +11,7 @@ def action_report(colorizer, activity):
     print('Displaying all entries for ', colorizer.yellow(activity), ' grouped by day:', sep='')
     print()
     sep = ' | '
-    data = get_data_store('JSON').load()
+    data = get_data_store().load()
     work = data['work']
     report = defaultdict(lambda: {'sum': timedelta(), 'notes': '', 'weekday': '', 'start_time': None, 'end_time': None})
 

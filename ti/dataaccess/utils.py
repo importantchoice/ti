@@ -9,10 +9,7 @@ json_default_env_var_name = 'SHEET_FILE'
 json_default_db_location = '/tmp/.ti-sheet'
 
 
-def get_data_store(type):
-    if not type:
-        type = default_datasource_type
-
+def get_data_store(type=default_datasource_type):
     if type == "JSON":
         return JsonStore(os.getenv(json_default_env_var_name, None) or
                   os.path.expanduser(json_default_db_location))

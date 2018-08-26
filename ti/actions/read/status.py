@@ -6,7 +6,7 @@ from ti.actions.utils.utils import ensure_working
 
 
 def action_status(colorizer):
-    data = get_data_store('JSON').load()
+    data = get_data_store().load()
 
     ensure_working(data)
 

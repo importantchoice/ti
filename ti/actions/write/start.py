@@ -3,7 +3,7 @@ from ti.dataaccess.utils import get_data_store
 
 
 def action_start(colorizer, name, time):
-    data = get_data_store('JSON').load()
+    data = get_data_store().load()
     work = data['work']
 
     if work and 'end' not in work[-1]:
@@ -16,6 +16,6 @@ def action_start(colorizer, name, time):
     }
 
     work.append(entry)
-    get_data_store('JSON').dump(data)
+    get_data_store().dump(data)
 
     print('Start working on ' + colorizer.green(name) + '.')

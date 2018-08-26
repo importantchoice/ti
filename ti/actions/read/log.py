@@ -7,7 +7,7 @@ from ti.colors import *
 
 
 def action_log(period):
-    data = get_data_store('JSON').load()
+    data = get_data_store().load()
     work = data['work']
     log = defaultdict(lambda: {'delta': timedelta()})
     current = None

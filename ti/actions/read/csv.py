@@ -7,7 +7,7 @@ from ti.actions.utils import reportingutils
 
 def action_csv():
     sep = '|'
-    data = get_data_store('JSON').load()
+    data = get_data_store().load()
     work = data['work']
 
     for item in work:
