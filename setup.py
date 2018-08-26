@@ -2,6 +2,7 @@
 import io
 import sys
 
+
 from setuptools import find_packages, setup
 
 
@@ -33,7 +34,7 @@ setup(
             "ti = ti:main",
         ]
     },
-    install_requires=["colorama", "pyyaml", 'tzlocal', 'pytz'],
+    install_requires=["colorama", "pyyaml", 'tzlocal', 'pytz', 'mock'],
     setup_requires=["pytest-runner"] if testing else [],
     tests_require=["pytest", "cram", "pytest-cram"],
     extras_require={
