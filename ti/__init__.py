@@ -42,29 +42,21 @@ from ti.colors import *
 
 from ti.actions.write import edit
 from ti.actions.write import start
+from ti.actions.write import stop
 
 from ti.actions.read import log
 from ti.actions.read import csv
 from ti.actions.read import report
 
 from ti.actions.read.utils import reportingutils
-
-
-def action_stop(time):
-    ensure_working()
-
-    data = get_store().load()
-
-    current = data['work'][-1]
-    current['end'] = time
-    get_store().dump(data)
-    print('So you stopped working on ' + colorizer.red(current['name']) + '.')
+from ti.actions.utils.utils import ensure_working
 
 
 def action_note(content):
-    ensure_working()
-
     data = get_store().load()
+
+    ensure_working(data)
+
     current = data['work'][-1]
 
     if 'notes' not in current:
@@ -78,9 +70,10 @@ def action_note(content):
 
 
 def action_tag(tags):
-    ensure_working()
-
     data = get_store().load()
+
+    ensure_working(data)
+
     current = data['work'][-1]
 
     current['tags'] = set(current.get('tags') or [])
@@ -95,9 +88,10 @@ def action_tag(tags):
 
 
 def action_status():
-    ensure_working()
-
     data = get_store().load()
+
+    ensure_working(data)
+
     current = data['work'][-1]
 
     start_time = parse_isotime(current['start'])
@@ -114,20 +108,6 @@ def action_status():
     if 'notes' in current:
         for note in current['notes']:
             print('  * ', note)
-
-
-def is_working():
-    data = get_store().load()
-    return data.get('work') and 'end' not in data['work'][-1]
-
-
-def ensure_working():
-    if is_working():
-        return
-
-    raise NoTask("For all I know, you aren't working on anything. "
-                 "I don't know what to do.\n"
-                 "See `ti -h` to know how to start working.")
 
 
 def parse_args(argv=sys.argv):
@@ -162,8 +142,8 @@ def parse_args(argv=sys.argv):
         }
 
     elif head in ['f', 'fin', 'stop']:
-        fn = action_stop
-        args = {'time': to_datetime(' '.join(tail))}
+        fn = stop.action_stop
+        args = { 'colorizer': colorizer, 'time': to_datetime(' '.join(tail))}
 
     elif head in ['s', 'status']:
         fn = action_status
