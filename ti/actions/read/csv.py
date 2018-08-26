@@ -2,8 +2,7 @@ from __future__ import print_function
 
 from ti.dataaccess.utils import get_data_store
 from ti.dateutils import *
-from ti.actions.read.utils import reportingutils
-
+from ti.actions.utils import reportingutils
 
 
 def action_csv():

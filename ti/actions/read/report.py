@@ -4,7 +4,7 @@ from collections import defaultdict
 
 from ti.dateutils import *
 from ti.dataaccess.utils import get_data_store
-from ti.actions.read.utils import reportingutils
+from ti.actions.utils import reportingutils
 
 
 def action_report(colorizer, activity):

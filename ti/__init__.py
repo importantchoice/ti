@@ -33,9 +33,6 @@ import sys
 from dateutils import *
 from exceptions import *
 
-from datetime import datetime
-
-
 from ti.dataaccess.utils import get_data_store
 
 from ti.colors import *
@@ -43,12 +40,14 @@ from ti.colors import *
 from ti.actions.write import edit
 from ti.actions.write import start
 from ti.actions.write import stop
+from ti.actions.write import tag
 
 from ti.actions.read import log
 from ti.actions.read import csv
 from ti.actions.read import report
+from ti.actions.read import status
 
-from ti.actions.read.utils import reportingutils
+from ti.actions.utils import reportingutils
 from ti.actions.utils.utils import ensure_working
 
 
@@ -67,47 +66,6 @@ def action_note(content):
     get_store().dump(data)
 
     print('Yep, noted to ' + colorizer.yellow(current['name']) + '.')
-
-
-def action_tag(tags):
-    data = get_store().load()
-
-    ensure_working(data)
-
-    current = data['work'][-1]
-
-    current['tags'] = set(current.get('tags') or [])
-    current['tags'].update(tags)
-    current['tags'] = list(current['tags'])
-
-    get_store().dump(data)
-
-    tag_count = len(tags)
-    print("Okay, tagged current work with %d tag%s."
-          % (tag_count, "s" if tag_count > 1 else ""))
-
-
-def action_status():
-    data = get_store().load()
-
-    ensure_working(data)
-
-    current = data['work'][-1]
-
-    start_time = parse_isotime(current['start'])
-    diff = timegap(start_time, datetime.utcnow())
-
-    isotime_local = isotime_utc_to_local(current['start'])
-    start_h_m = isotime_local.strftime('%H:%M')
-    now_time_str = datetime.now().strftime('%H:%M');
-
-    print('You have been working on {0} for {1}, since {2}; It is now {3}.'
-          .format(colorizer.green(current['name']), colorizer.yellow(diff),
-                  colorizer.yellow(start_h_m), colorizer.yellow(now_time_str)))
-
-    if 'notes' in current:
-        for note in current['notes']:
-            print('  * ', note)
 
 
 def parse_args(argv=sys.argv):
@@ -143,11 +101,11 @@ def parse_args(argv=sys.argv):
 
     elif head in ['f', 'fin', 'stop']:
         fn = stop.action_stop
-        args = { 'colorizer': colorizer, 'time': to_datetime(' '.join(tail))}
+        args = {'colorizer': colorizer, 'time': to_datetime(' '.join(tail))}
 
     elif head in ['s', 'status']:
-        fn = action_status
-        args = {}
+        fn = status.action_status
+        args = {'colorizer': colorizer}
 
     elif head in ['l', 'log']:
         fn = log.action_log
@@ -167,7 +125,7 @@ def parse_args(argv=sys.argv):
         if not tail:
             raise BadArguments("Please provide at least one tag to add.")
 
-        fn = action_tag
+        fn = tag.action_tag
         args = {'tags': tail}
 
     elif head in ['n', 'note']:
