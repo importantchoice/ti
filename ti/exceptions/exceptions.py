@@ -17,6 +17,7 @@ class InvalidYAML(TIError):
 class NoTask(TIError):
     """Not working on a task yet."""
 
+
 class BadArguments(TIError):
     """The command line arguments passed are not valid."""
 
@@ -24,5 +25,6 @@ class BadArguments(TIError):
 class BadTime(TIError):
     """Time string can't be parsed."""
 
-class NonexistantDatasource(TIError):
+
+class NonexistentDatasource(TIError):
     """The requested datasource is not supported"""

@@ -1,7 +1,7 @@
 import os
 
 from ti.datasources import JsonStore
-from ti.exceptions import NonexistantDatasource
+from ti.exceptions import NonexistentDatasource
 
 default_datasource_type = 'JSON'
 
@@ -14,4 +14,4 @@ def get_data_store(type=default_datasource_type):
         return JsonStore(os.getenv(json_default_env_var_name, None) or
                   os.path.expanduser(json_default_db_location))
     else:
-        raise NonexistantDatasource('App only supports JSON datasources at the moment')
+        raise NonexistentDatasource('App only supports JSON datasources at the moment')
