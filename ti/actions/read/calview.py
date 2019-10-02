@@ -16,9 +16,9 @@ def action_calview(colorizer, month):
     year=2019
     month_cal = calendar.monthcalendar(year,int(month))
     
-    print("________________________________________________________________________________________________________________________________________")
+    print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
     print("|         Monday           |         Tuesday          |         Wednesday        |         Thursday         |           Friday         |")
-    print("________________________________________________________________________________________________________________________________________")
+    print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
     for week in range(len(month_cal)):
         weekdays = month_cal[week]
         #skip empty weeks completely
@@ -31,10 +31,10 @@ def action_calview(colorizer, month):
                 day_cell_header=" "+ str(year)+"-"+month.zfill(2)+"-"+str(weekdays[day_index]).zfill(2)
             print(day_cell_header.ljust(26, ' '),  end="|")
         print()
-        print("----------------------------------------------------------------------------------------------------------------------------------------")
+        print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
         print_week_activity(weekdays,  5,  report,  year,  month)
         #print("WEEK DONE")
-        print("________________________________________________________________________________________________________________________________________")
+        print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
         
 
 def print_week_activity(current_week,  height_in_rows,  report,  year,  month):
@@ -58,7 +58,7 @@ def get_activity(report,  curr_row,  day_key,  year,  month):
             if curr_row < len(list(activity_dict)):
                 activity_key = list(activity_dict)[curr_row]
                 activity_duration = report[report_key][activity_key]
-                return activity_key + " : " + str(activity_duration)
+                return activity_key + " : " + format_time(activity_duration) + " "
         except:
             return ""
         return ""
