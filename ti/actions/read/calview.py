@@ -21,6 +21,9 @@ def action_calview(colorizer, month):
     print("________________________________________________________________________________________________________________________________________")
     for week in range(len(month_cal)):
         weekdays = month_cal[week]
+        #skip empty weeks completely
+        if weekdays[4]==0:
+            continue
         print("",  end="|")
         for day_index in range(len(weekdays)-2):
             day_cell_header=""
