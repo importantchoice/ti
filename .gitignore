@@ -40,3 +40,6 @@ coverage.xml
 .idea/
 venv/
 
+#eric project files
+.eric6project/
+*.e4p
