@@ -22,7 +22,7 @@ def action_calview(colorizer, month):
     for week in range(len(month_cal)):
         weekdays = month_cal[week]
         #skip empty weeks completely
-        if weekdays[4]==0:
+        if weekdays[0] == 0 and weekdays[4] == 0:
             continue
         print("",  end="|")
         for day_index in range(len(weekdays)-2):
