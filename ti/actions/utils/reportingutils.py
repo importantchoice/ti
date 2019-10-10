@@ -1,4 +1,4 @@
-from ti.dateutils import *
+from dateutils.dateutils import *
 
 
 def get_notes_from_workitem(item):

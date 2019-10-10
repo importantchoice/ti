@@ -6,7 +6,7 @@ from tzlocal import get_localzone
 from datetime import datetime, timedelta
 
 
-from ti.exceptions import *
+from exceptions import *
 
 TI_TODAY_ENV_VAR = "TI_CURRENT_DAY"
 

@@ -1,4 +1,4 @@
-from ti.exceptions import NoTask
+from exceptz.exceptz import NoTask
 
 
 def ensure_working(data):

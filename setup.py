@@ -31,7 +31,7 @@ setup(
     long_description=read("README.rst", "CHANGES.rst"),
     entry_points={
         "console_scripts": [
-            "ti = .ti_script.main",
+            "ti = ti.ti:main",
         ]
     },
     install_requires=["colorama", "pyyaml", 'tzlocal', 'pytz', 'mock', 'lark-parser'],
