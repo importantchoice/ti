@@ -1,36 +1,9 @@
 # coding: utf-8
-
-"""
-ti is a simple and extensible time tracker for the command line. Visit the
-project page (http://ti.sharats.me) for more details.
-
-Usage:
-  ti (start) <name> [<time>...]
-  ti (stop) [<time>...]
-  ti (s|status)
-  ti (t|tag) <tag>...
-  ti (n|note) <note-text>...
-  ti (l|log) [today]
-  ti (e|edit)
-  ti --no-color
-  ti -h | --help
-
-Options:
-  -h --help         Show this help.
-  <start-time>...   A time specification (goto http://ti.sharats.me for more on
-                    this).
-  <tag>...          Tags can be made of any characters, but its probably a good
-                    idea to avoid whitespace.
-  <note-text>...    Some arbitrary text to be added as `notes` to the currently
-                    working project.
-"""
-
 from __future__ import print_function
 
 import sys
 
-
-from colors import Colorizer
+from colors.colors import Colorizer
 
 from dateutils.dateutils import to_datetime
 
