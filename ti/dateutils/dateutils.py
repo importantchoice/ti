@@ -5,6 +5,7 @@ import re
 from tzlocal import get_localzone
 from datetime import datetime, timedelta
 
+
 TI_TODAY_ENV_VAR = "TI_CURRENT_DAY"
 
 def get_local_timezone():

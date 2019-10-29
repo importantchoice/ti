@@ -6,9 +6,9 @@ import calendar
 
 from collections import defaultdict
 
-from dateutils.dateutils import *
-from dataaccess.utils import get_data_store
-from actions.utils import reportingutils
+from ti.dateutils.dateutils import *
+from ti.dataaccess.utils import get_data_store
+from ti.actions.utils import reportingutils
 def action_calview(colorizer, month):
     print('Displaying all entries for month ', colorizer.yellow(month), ' grouped by day:', sep='')
     

@@ -1,5 +1,5 @@
-from exceptz.exceptz import AlreadyOn
-from dataaccess.utils import get_data_store
+from ti.exceptz.exceptz import AlreadyOn
+from ti.dataaccess.utils import get_data_store
 
 
 def action_start(colorizer, name, time):

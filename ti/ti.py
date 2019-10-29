@@ -3,24 +3,24 @@ from __future__ import print_function
 
 import sys
 
-from colors.colors import Colorizer
+from ti.colors.colors import Colorizer
 
-from dateutils.dateutils import to_datetime
+from ti.dateutils.dateutils import to_datetime
 
-from exceptz.exceptz import BadArguments
-from exceptz.exceptz import TIError
+from ti.exceptz.exceptz import BadArguments
+from ti.exceptz.exceptz import TIError
 
-from actions.write import edit
-from actions.write import start
-from actions.write import stop
-from actions.write import tag
-from actions.write import note
+from ti.actions.write import edit
+from ti.actions.write import start
+from ti.actions.write import stop
+from ti.actions.write import tag
+from ti.actions.write import note
 
-from actions.read import log
-from actions.read import csv
-from actions.read import report
-from actions.read import calview
-from actions.read import status
+from ti.actions.read import log
+from ti.actions.read import csv
+from ti.actions.read import report
+from ti.actions.read import calview
+from ti.actions.read import status
 
 
 

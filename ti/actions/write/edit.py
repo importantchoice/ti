@@ -3,9 +3,9 @@ import os
 import tempfile
 import subprocess
 
-from exceptz.exceptz import InvalidYAML
-from exceptz.exceptz import NoEditor
-from dataaccess.utils import get_data_store
+from ti.exceptz.exceptz import InvalidYAML
+from ti.exceptz.exceptz import NoEditor
+from ti.dataaccess.utils import get_data_store
 
 
 def action_edit():

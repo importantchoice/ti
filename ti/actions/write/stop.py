@@ -1,5 +1,5 @@
-from dataaccess.utils import get_data_store
-from actions.utils.utils import ensure_working
+from ti.dataaccess.utils import get_data_store
+from ti.actions.utils.utils import ensure_working
 
 
 def action_stop(colorizer, time):
