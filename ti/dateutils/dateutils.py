@@ -50,7 +50,7 @@ def parse_engtime(timestr):
         settime = datetime.strptime(timestr, "%H:%M")
         x = now.replace(hour=settime.hour, minute=settime.minute, second=0, microsecond=1)
         if get_current_day() is not None:
-            currentday = datetime.strptime(get_current_day(), "%d.%m.%Y")
+            currentday = datetime.strptime(get_current_day(), "%Y-%m-%d")
             y = x.replace(day=currentday.day, month=currentday.month, year=currentday.year)
             return local_to_utc(y)
         return local_to_utc(x)
