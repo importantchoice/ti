@@ -42,13 +42,13 @@ def parse_args(argv=sys.argv):
     if head in ['-h', '--help', 'h', 'help']:
         raise BadArguments()
 
-    elif head in ['e', 'edit']:
+    elif head in ['edit']:
         fn = edit.action_edit
         args = {}
 
-    elif head in ['o', 'on', 'start']:
-        if not tail:
-            raise BadArguments("Need the name of whatever you are working on.")
+    elif head in ['start']:
+        if not tail or len(tail) != 2:
+            raise BadArguments("Please provide a name for the activity and the start time, like so:\n$ ti start project 14:15")
 
         fn = start.action_start
         args = {
@@ -57,15 +57,15 @@ def parse_args(argv=sys.argv):
             'time': to_datetime(' '.join(tail[1:])),
         }
 
-    elif head in ['f', 'fin', 'stop']:
+    elif head in ['stop']:
         fn = stop.action_stop
         args = {'colorizer': colorizer, 'time': to_datetime(' '.join(tail))}
 
-    elif head in ['s', 'status']:
+    elif head in ['status']:
         fn = status.action_status
         args = {'colorizer': colorizer}
 
-    elif head in ['l', 'log']:
+    elif head in ['log']:
         fn = log.action_log
         args = {'period': tail[0] if tail else None}
 
@@ -85,14 +85,14 @@ def parse_args(argv=sys.argv):
             raise BadArguments('Please provide the number of the month for which to generate the activity report')
         args = {'colorizer': colorizer, 'month': tail[0]}
 
-    elif head in ['t', 'tag']:
+    elif head in ['tag']:
         if not tail:
             raise BadArguments("Please provide at least one tag to add.")
 
         fn = tag.action_tag
         args = {'tags': tail}
 
-    elif head in ['n', 'note']:
+    elif head in ['note']:
         if not tail:
             raise BadArguments("Please provide some text to be noted.")
 

@@ -18,4 +18,4 @@ def action_start(colorizer, name, time):
     work.append(entry)
     get_data_store().dump(data)
 
-    print('Start working on ' + colorizer.green(name) + '.')
+    print('Started working on ' + colorizer.green(name) + '.')

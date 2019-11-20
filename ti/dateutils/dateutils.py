@@ -4,6 +4,7 @@ import re
 
 from tzlocal import get_localzone
 from datetime import datetime, timedelta
+from ti.exceptz.exceptz import TIError
 
 
 TI_TODAY_ENV_VAR = "TI_CURRENT_DAY"
@@ -40,14 +41,24 @@ def get_current_day():
     today_value = os.getenv(TI_TODAY_ENV_VAR, None)
     return today_value
 
+def parse_time_multiformat(timestr):
+    for time_format in ["%H:%M", "%H%M"]:
+        print(timestr,time_format)
+        try:
+            settime = datetime.strptime(timestr, time_format)
+            return settime
+        except Exception as keep_going:
+            print("Caught an exception", keep_going)
+            pass
+
+    raise TIError("Can't parse your date string. Supported formats are 14:30 or 1430")
+    
 
 def parse_engtime(timestr):
     now = datetime.utcnow()
-    if not timestr or timestr.strip() == 'now':
-        return now
-
+    
     try:
-        settime = datetime.strptime(timestr, "%H:%M")
+        settime = parse_time_multiformat(timestr)
         x = now.replace(hour=settime.hour, minute=settime.minute, second=0, microsecond=1)
         if get_current_day() is not None:
             currentday = datetime.strptime(get_current_day(), "%Y-%m-%d")
@@ -58,29 +69,7 @@ def parse_engtime(timestr):
         print(e)
         # pass
 
-    match = re.match(r'(\d+|a) \s* (s|secs?|seconds?) \s+ ago $',
-                     timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        seconds = 1 if n == 'a' else int(n)
-        diff = now - timedelta(seconds=seconds)
-        print(diff)
-        print(isotime_utc_to_local(diff.isoformat() + 'Z'))
-        return now - timedelta(seconds=seconds)
-
-    match = re.match(r'(\d+|a) \s* (mins?|minutes?) \s+ ago $', timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        minutes = 1 if n == 'a' else int(n)
-        return now - timedelta(minutes=minutes)
-
-    match = re.match(r'(\d+|a|an) \s* (hrs?|hours?) \s+ ago $', timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        hours = 1 if n in ['a', 'an'] else int(n)
-        return now - timedelta(hours=hours)
-
-    raise BadTime("Don't understand the time %r" % (timestr,))
+    raise TIError("Don't understand the time %r" % (timestr,))
 
 
 def timegap(start_time, end_time):

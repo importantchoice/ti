@@ -40,4 +40,14 @@ class TestDateutils(TestCase):
         isotime_now = now_really.isoformat()+"Z"
         isotime_parsed_from_string = parse_isotime(isotime_now)
         self.assertEqual(isotime_parsed_from_string, now_really)
+        
+    def test_parse_time_multiformat_colon_separated(self):
+        time_parsed = parse_time_multiformat("20:15")
+        self.assertEqual(20, time_parsed.hour)
+        self.assertEqual(15, time_parsed.minute)
+
+    def test_parse_time_multiformat_not_separated(self):
+        time_parsed = parse_time_multiformat("2015")
+        self.assertEqual(20, time_parsed.hour)
+        self.assertEqual(15, time_parsed.minute)
 
