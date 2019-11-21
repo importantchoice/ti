@@ -28,7 +28,7 @@ def parse_isotime(isotime_str):
 
 
 def to_datetime(timestr):
-    return parse_engtime(timestr).isoformat() + 'Z'
+    return parse_time_h_m_to_iso(timestr).isoformat() + 'Z'
 
 
 def local_to_utc(local_dt):
@@ -43,23 +43,23 @@ def get_current_day():
 
 def parse_time_multiformat(timestr):
     for time_format in ["%H:%M", "%H%M"]:
-        print(timestr,time_format)
         try:
             settime = datetime.strptime(timestr, time_format)
             return settime
         except Exception as keep_going:
-            print("Caught an exception", keep_going)
             pass
 
     raise TIError("Can't parse your date string. Supported formats are 14:30 or 1430")
     
 
-def parse_engtime(timestr):
+def parse_time_h_m_to_iso(timestr):
     now = datetime.utcnow()
     
     try:
         settime = parse_time_multiformat(timestr)
         x = now.replace(hour=settime.hour, minute=settime.minute, second=0, microsecond=1)
+        print ("Timezone", get_local_timezone())
+        print ("CD:",get_current_day())
         if get_current_day() is not None:
             currentday = datetime.strptime(get_current_day(), "%Y-%m-%d")
             y = x.replace(day=currentday.day, month=currentday.month, year=currentday.year)
@@ -67,7 +67,6 @@ def parse_engtime(timestr):
         return local_to_utc(x)
     except Exception as e:
         print(e)
-        # pass
 
     raise TIError("Don't understand the time %r" % (timestr,))
 
