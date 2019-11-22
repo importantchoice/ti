@@ -17,7 +17,7 @@ def action_calview(colorizer, month):
     month_cal = calendar.monthcalendar(year,int(month))
     
     print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
-    print("|         Monday           |         Tuesday          |         Wednesday        |         Thursday         |           Friday         |")
+    print("|         " + colorizer.yellow("Monday") + "           |         " + colorizer.yellow("Tuesday") + "          |         "+ colorizer.yellow("Wednesday") + "        |         " + colorizer.yellow("Thursday") + "         |           "+ colorizer.yellow("Friday") + "         |")
     print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
     for week in range(len(month_cal)):
         weekdays = month_cal[week]
@@ -29,29 +29,29 @@ def action_calview(colorizer, month):
             day_cell_header=""
             if weekdays[day_index] != 0:
                 day_cell_header=" "+ str(year)+"-"+month.zfill(2)+"-"+str(weekdays[day_index]).zfill(2)
-            print(day_cell_header.ljust(26, ' '),  end="|")
+            print(colorizer.blue(day_cell_header.ljust(26, ' ')),  end="|")
         print()
         print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
-        print_week_activity(weekdays,  5,  report,  year,  month)
+        print_week_activity(colorizer, weekdays,  5,  report,  year,  month)
         #print("WEEK DONE")
         print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
         
 
-def print_week_activity(current_week,  height_in_rows,  report,  year,  month):
+def print_week_activity(colorizer, current_week,  height_in_rows,  report,  year,  month):
    for curr_row in range(height_in_rows):
-       print_activity_at_index(curr_row,  current_week, report,  year,  month)
+       print_activity_at_index(colorizer, curr_row,  current_week, report,  year,  month)
        print("") #one week row done
 
-def print_activity_at_index(curr_row,  current_week,  report,  year,  month):
+def print_activity_at_index(colorizer, curr_row,  current_week,  report,  year,  month):
     print("",  end="|")    
     for day_index in range(len(current_week)-2):
         if current_week[day_index] == 0:
             print("".rjust(26, ' '),  end="|")
         else:
-            activity_str =  get_activity(report,  curr_row, current_week[day_index],  year,  month)
-            print(activity_str.rjust(26, ' '),  end="|")
+            activity_str =  get_activity(colorizer, report,  curr_row, current_week[day_index],  year,  month)
+            print(colorizer.green(activity_str.rjust(26, ' ')),  end="|")
 
-def get_activity(report,  curr_row,  day_key,  year,  month):
+def get_activity(colorizer, report,  curr_row,  day_key,  year,  month):
         report_key=str(year)+"-"+month.zfill(2)+"-"+str(day_key).zfill(2)
         try:
             activity_dict = report[report_key]
@@ -63,12 +63,12 @@ def get_activity(report,  curr_row,  day_key,  year,  month):
             return ""
         return ""
         
-def print_current_day(current_day_dict):
-    string_report=' '
-    for activity in current_day_dict.iterkeys():
-        curr_act_duration=current_day_dict[activity]
-        string_report+=activity+":"+format_time(curr_act_duration)+";"
-    return string_report
+#def print_current_day(current_day_dict):
+    #string_report=' '
+    #for activity in current_day_dict.iterkeys():
+        #curr_act_duration=current_day_dict[activity]
+        #string_report+=activity+":"+format_time(curr_act_duration)+";"
+    #return string_report
 
 def generate_day_based_report():
     data = get_data_store().load()
