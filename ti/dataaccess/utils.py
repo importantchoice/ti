@@ -1,7 +1,7 @@
 import os
 
-from ti.datasources import JsonStore
-from ti.exceptions import NonexistentDatasource
+from ti.datasources.jsondatasource import JsonStore
+from ti.exceptz.exceptz import NonexistentDatasource
 
 default_datasource_type = 'JSON'
 

@@ -4,22 +4,21 @@ import re
 
 from tzlocal import get_localzone
 from datetime import datetime, timedelta
+from ti.exceptz.exceptz import TIError
 
-
-from ti.exceptions import *
 
 TI_TODAY_ENV_VAR = "TI_CURRENT_DAY"
 
 def get_local_timezone():
     return get_localzone()
 
-
+#   returns a datetime
 def utc_to_local(utc_dt):
     local_tz = get_local_timezone()
     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
     return local_tz.normalize(local_dt)
 
-
+#   returns a datetime
 def isotime_utc_to_local(isotime_utc):
     return utc_to_local(parse_isotime(isotime_utc))
 
@@ -27,9 +26,9 @@ def isotime_utc_to_local(isotime_utc):
 def parse_isotime(isotime_str):
     return datetime.strptime(isotime_str, '%Y-%m-%dT%H:%M:%S.%fZ')
 
-
+#   returns a datetime for an input string
 def to_datetime(timestr):
-    return parse_engtime(timestr).isoformat() + 'Z'
+    return parse_time_h_m_to_iso(timestr).isoformat() + 'Z'
 
 
 def local_to_utc(local_dt):
@@ -38,51 +37,41 @@ def local_to_utc(local_dt):
     return utc_dt.replace(tzinfo=None)
 
 
+def formatted_str_for_isotime_str(isotime_str, format_str):
+    localtime = isotime_utc_to_local(isotime_str);
+    return localtime.strftime(format_str)
+
+
 def get_current_day():
     today_value = os.getenv(TI_TODAY_ENV_VAR, None)
     return today_value
 
+def parse_time_multiformat(timestr):
+    for time_format in ["%H:%M", "%H%M"]:
+        try:
+            settime = datetime.strptime(timestr, time_format)
+            return settime
+        except Exception as keep_going:
+            pass
 
-def parse_engtime(timestr):
+    raise TIError("Can't parse your date string. Supported formats are 14:30 or 1430")
+    
+
+def parse_time_h_m_to_iso(timestr):
     now = datetime.utcnow()
-    if not timestr or timestr.strip() == 'now':
-        return now
-
+    
     try:
-        settime = datetime.strptime(timestr, "%H:%M")
+        settime = parse_time_multiformat(timestr)
         x = now.replace(hour=settime.hour, minute=settime.minute, second=0, microsecond=1)
         if get_current_day() is not None:
-            currentday = datetime.strptime(get_current_day(), "%d.%m.%Y")
+            currentday = datetime.strptime(get_current_day(), "%Y-%m-%d")
             y = x.replace(day=currentday.day, month=currentday.month, year=currentday.year)
             return local_to_utc(y)
         return local_to_utc(x)
     except Exception as e:
         print(e)
-        # pass
 
-    match = re.match(r'(\d+|a) \s* (s|secs?|seconds?) \s+ ago $',
-                     timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        seconds = 1 if n == 'a' else int(n)
-        diff = now - timedelta(seconds=seconds)
-        print(diff)
-        print(isotime_utc_to_local(diff.isoformat() + 'Z'))
-        return now - timedelta(seconds=seconds)
-
-    match = re.match(r'(\d+|a) \s* (mins?|minutes?) \s+ ago $', timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        minutes = 1 if n == 'a' else int(n)
-        return now - timedelta(minutes=minutes)
-
-    match = re.match(r'(\d+|a|an) \s* (hrs?|hours?) \s+ ago $', timestr, re.X)
-    if match is not None:
-        n = match.group(1)
-        hours = 1 if n in ['a', 'an'] else int(n)
-        return now - timedelta(hours=hours)
-
-    raise BadTime("Don't understand the time %r" % (timestr,))
+    raise TIError("Don't understand the time %r" % (timestr,))
 
 
 def timegap(start_time, end_time):

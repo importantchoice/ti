@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from collections import defaultdict
 
-from ti.dateutils import *
+from ti.dateutils.dateutils import *
 from ti.dataaccess.utils import get_data_store
 from ti.actions.utils import reportingutils
 
@@ -67,7 +67,7 @@ def format_time_seconds(duration_secs, colorizer):
 
 def get_min_date(date_1, date_2):
     if date_1 is None:
-        date_1 = parse_isotime('2022-01-01T00:00:00.000001Z')
+        date_1 = parse_isotime('2099-01-01T00:00:00.000001Z')
     return date_1 if date_1 < date_2 else date_2
 
 

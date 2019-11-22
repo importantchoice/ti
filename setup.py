@@ -20,7 +20,7 @@ testing = bool({"pytest", "test"}.intersection(sys.argv))
 
 setup(
     name="ti",
-    version="0.3.1",
+    version="0.9.0",
     author="Shrikant Sharat & Trevor Bekolay",
     author_email="tbekolay@gmail.com",
     packages=find_packages(),
@@ -31,7 +31,7 @@ setup(
     long_description=read("README.rst", "CHANGES.rst"),
     entry_points={
         "console_scripts": [
-            "ti = ti:main",
+            "ti = ti.ti:main",
         ]
     },
     install_requires=["colorama", "pyyaml", 'tzlocal', 'pytz', 'mock', 'lark-parser'],
