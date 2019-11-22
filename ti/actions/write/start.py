@@ -1,6 +1,6 @@
 from ti.exceptz.exceptz import AlreadyOn
 from ti.dataaccess.utils import get_data_store
-
+from ti.dateutils.dateutils import formatted_str_for_isotime_str
 
 def action_start(colorizer, name, time):
     data = get_data_store().load()
@@ -18,4 +18,5 @@ def action_start(colorizer, name, time):
     work.append(entry)
     get_data_store().dump(data)
 
-    print('Started working on ' + colorizer.green(name) + '.')
+    print('Started working on ' + colorizer.green(name) + ' at ' +
+           colorizer.yellow(formatted_str_for_isotime_str(time, '%H:%M')) + '.')
