@@ -82,8 +82,8 @@ def parse_args(argv=sys.argv):
     elif head in ['calview']:
         fn = calview.action_calview
         if not tail:
-            raise BadArguments('Please provide the number of the month for which to generate the activity report')
-        args = {'colorizer': colorizer, 'month': tail[0]}
+            raise BadArguments('Please provide the month [optionally followed by the year] for which to generate the activity report')
+        args = {'colorizer': colorizer, 'month': tail[0], 'year': tail[1] if len(tail) > 1 else None }
 
     elif head in ['tag']:
         if not tail:

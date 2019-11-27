@@ -9,12 +9,13 @@ from collections import defaultdict
 from ti.dateutils.dateutils import *
 from ti.dataaccess.utils import get_data_store
 from ti.actions.utils import reportingutils
-def action_calview(colorizer, month):
-    print('Displaying all entries for month ', colorizer.yellow(month), ' grouped by day:', sep='')
-    
+def action_calview(colorizer, month, year):
     report = generate_day_based_report()
-    year=2019
-    month_cal = calendar.monthcalendar(year,int(month))
+    year =  get_current_year_local_tz() if year is None else year
+
+    print('Displaying all entries for ', colorizer.yellow(year+'-'+month),  ' grouped by day:', sep='')
+
+    month_cal = calendar.monthcalendar(int(year),int(month))
     
     print("+--------------------------+--------------------------+--------------------------+--------------------------+--------------------------+")
     print("|         " + colorizer.yellow("Monday") + "           |         " + colorizer.yellow("Tuesday") + "          |         "+ colorizer.yellow("Wednesday") + "        |         " + colorizer.yellow("Thursday") + "         |           "+ colorizer.yellow("Friday") + "         |")
@@ -63,13 +64,6 @@ def get_activity(colorizer, report,  curr_row,  day_key,  year,  month):
             return ""
         return ""
         
-#def print_current_day(current_day_dict):
-    #string_report=' '
-    #for activity in current_day_dict.iterkeys():
-        #curr_act_duration=current_day_dict[activity]
-        #string_report+=activity+":"+format_time(curr_act_duration)+";"
-    #return string_report
-
 def generate_day_based_report():
     data = get_data_store().load()
     work = data['work']
