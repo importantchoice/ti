@@ -1,116 +1,184 @@
 =================================
-ti -- A silly simple time tracker
+tt -- A silly simple time tracker
 =================================
 
-``ti`` is a small command line time-tracking application.
+``tt`` is a small stateful command line time-tracking application implemented in python.
 Simple basic usage looks like this::
 
-    $ ti start my-project
-    $ ti stop
+    $ tt start my-project 14:15
+    $ tt stop 18:00
 
-You can also give it human-readable times::
+Alternatively you can skip the colon when entering times::
 
-    $ ti start my-project 9:15
+    $ tt start my-project 0915
+    $ tt stop 10:20
 
-``ti`` sports many other cool features. Read along to discover.
+``tt`` what else .
 
-Wat?
-====
+What is tt?
+===========
 
-``ti`` is a simple command line time tracker. It has been completely rewritten
-in Python (originally a bash script) and has (almost) complete test coverage. It
-is inspired by `timed <http://adeel.github.com/timed>`_, which is a nice project
-that you should check out if you don't like ``ti``. ``ti`` also takes
-inspiration from the simplicity of `t <http://stevelosh.com/projects/t/>`_.
+``tt`` is a simple command line time tracker. It is based on `ti <https://github.com/tbekolay/ti>`_,
+by Shrikant Sharat and Trevor Bekolay and is written in Python. Ti is in turn inspired by both
+`timed <http://adeel.github.com/timed>`_, and the elegantly simple `t <http://stevelosh.com/projects/t/>`_.
 
-If a time-tracking tool makes me think for more than 3-5 seconds, I lose my line
-of thought and forget what I was doing. This is why I created ``ti``. With
-``ti``, you'll be as fast as you can type, which you should be good with anyway.
 
-The most important part about ``ti`` is that it provides just a few commands to
-manage your time-tracking and then gets out of your way.
+As opposed to its predecessor ``ti``, ``tt`` is mostly aimed at IT consultants or other professionals who need to
+*precisely* keep track of their time spent working on multiple projects and issue customer invoices based on their entries.
 
-All data is saved in a JSON file ,``~/.ti-sheet``. (This can be changed using the
-``$SHEET_FILE``  environment variable.) The JSON is easy to access and can be
-processed into other more stylized documents. Some ideas:
+You can therefore think of it as being made up of two main modules:
 
-- Read your JSON file to generate beautiful HTML reports.
-- Build monthly statistics based on tags or tasks.
-- Read your currently working project and display it in your terminal prompt.
-  Maybe even with the number of hours you've been working.
+- the actual time tracking, or the creation of time entries.
+- the reporting functionality, or the evaluation of already entered time info.
 
-It's *your* data.
+Time boxes
+----------
+The main idea behind ``tt`` is that it enables the user to record their effort in the form of *time segments* or *time boxes*.
 
-Oh and by the way, the source is a fairly small Python script, so if you know
-Python, you may want to skim over it to get a better feel of how it works.
+A *time box* is defined by::
 
-*Note*: If you have used the previous bash version of ``ti``, which was horribly
-tied up to only work on Linux, you might notice the lack of plugins in this
-Python version. I am not really missing them, so I might not add them. If anyone
-has any interesting use cases for it, I'm willing to consider.
+* a name
+* a starting point
+* an end point
+* optional notes
+
+Another, somewhat hidden dimension is the *current date* - or day - which is *implicitly* **today**, your machine's current ``date``, unless explicitly overriden by using the command line environment variable ``TT_CURRENT_DAY``::
+
+  $ export TT_CURRENT_DAY="2023-08-30" ### note the ISO formatting
+  $ # any tt commands issued in between here, will refer to the 30th of August 2023
+
+  $ tt start future-task 00:00
+  $ tt note "Hoverboarding isn't what it used to be"
+  $ tt note "Also, I'm probably sleeping right now"
+  $ tt stop 07:00
+
+  $ unset TT_CURRENT_DAY
+
+Statefulness++ for your convenience
+-----------------------------------
+
+In addition to the implied *current date*, ``tt`` saves the outcome of any successful command you've issued in a centralised JSON file. This means that there is *only one state* of ``tt`` for your entire user session. You can start a time box in one terminal window, add notes to it in another one and end the time box in a third terminal.
+
+The location of the time entry database can be specified via the environment variable ``SHEET_FILE``. The default location is ``~/.tt-sheet.json``. 
+
+To make your custom db location persistent, just add the following line to your ``~/.bashrc`` as demonstrated here::
+
+  export SHEET_FILE=/home/johnson/timesheets/time-entries.json
+
+Please consider backing up this folder regularly, so as to avoid any data loss. You can edit this file directly to correct erroneous entries or use ``tt``'s built-in ``edit`` function
+
+You can now process the data from the time entry db with any tools you want. ``tt`` provides you with some basic reporting that might or might not make sense for your purpose.
 
 Usage
 =====
 
-Here's the minimal usage style::
+Adding a new time box
+---------------------
 
-    $ ti start my-project 12:00
-    Start working on my-project.
+  $ tt start fav-customer 12:15
+  Started working on fav-customer at 12:15.
 
-    $ ti status
-    You have been working on my-project for less than a minute.
+  $ ti status
+  You have been working on fav-customer for about 2 hours, since 12:15; It is now 14:12.
 
-    $ ti stop 12:30
-    So you stopped working on my-project.
+  $ tt stop 12:30
+  So you stopped working on fav-customer.
 
-``start`` and ``stop`` can take a time (format described further down) at which to
-apply the action::
+``start`` and ``stop`` can take a time of the form ``HH:mm`` or ``HHmm`` at which to apply the action. They store the times normalized to GMT in the database, taking into account the DST values for your timezone. Beware when reading or editing!
 
-Put brief notes on what you've been doing::
+Enhance your time box with notes and tags::
+-------------------------------------------
 
-    $ ti note waiting for Napoleon to take over the world
-    $ ti n another simple note for demo purposes
+The **note** and **tag** commands only work if an active (open) time box exists, i.e. if the ``stop`` command hasn't been invoked yet::
 
-Tag your activities for fun and profit::
+    $ tt note "implement new user authentication"
 
-    $ ti tag imp
+Tag your activity for added reportability::
 
+    $ tt tag private
+
+Change entries:
+---------------
+
+By setting a default text editor (console or gui-based)  in the environment variable ``EDITOR``, you can easily correct mistakes. Just add the following line, referecing  your favourite text editor to your ``~/.bashrc`` and enable fast time entry correction.
+
+  $ export EDITOR=vim
+
+  $ tt edit
+
+This will open your time entries DB using the specified editor in the handy YAML format. Once you save your changes and exit the file, the changes will be persisted back into your SHEET_FILE.
+
+See your entries:
+-----------------
+
+log
+~~~
 Get a log of all activities with the ``log`` (or ``l``) command::
 
-    $ ti log
+  $ tt log
 
+csv
+~~~
 Get a list of all activities in CSV format, so that they can be imported into your favourite spreadsheet editor
 
-    $ ti csv
-    $ ti --no-color csv | grep 2018-01 #will show all entries you logged in January 2018
+  $ tt csv
+  $ tt csv | grep 2018-01 ### will show all entries you logged in January 2018
+  $ tt --no-color csv | grep 2018-01 > /tmp/jan-2018.csv ; libreoffice /tmp/jan-2018.csv
 
-Get a report for your project:
+The last command allows you to break out of the console and takes you into the realm of spreadsheets. The ``--no-color`` parameter makes sure that the terminal's color markup does not end up in your csv file.
 
-    $ ti report customeur
-    $ ti report customeur | grep 2018-10
 
-Gimme!
-======
+report
+~~~~~~
+Get a report for your project, grouped by day:
 
-You can download ``ti`` `from the source on
-GitHub <https://raw.github.com/tbekolay/ti/master/bin/ti>`_.
+  $ tt report customeur
+  $ tt report customeur | grep 2018-10
+  $ tt --no-color report customeur | grep 2018-10 >  /tmp/oct-2018.csv ; libreoffice /tmp/oct-2018.csv
 
-- Put it somewhere in your ``$PATH`` and make sure it has executable permissions.
-- Install ``pyyaml`` using the command ``pip install --user pyyaml``.
-- Install ``colorama`` using the command ``pip install --user colorama``.
+Same trick applies here. Beware that the CSV separator is in this case the pipe symbol ``|``, since semicolons are used for concatenating all the different note entries into one big note field per day.
 
-After that, ``ti`` should be working fine.
 
-Also, visit the `project page on GitHub <https://github.com/tbekolay/ti>`_ for
-any further details.
+calview
+~~~~~~~
+Doublecheck your entries per month and gain an overview of your effort throughout the month. No more blindspots.
 
-Who?
-====
+When calling calview with one parameter, the application assumes you want to have the calendar view for the supplied month and the *current year*.
 
-Originally created and fed by Shrikant Sharat
+  $ tt calview 7
+
+Specifiying a different year for calview:
+
+  $ tt calview 1 2054
+
+This last command will show you the working days of January 2054
+
+Caveats
+=======
+
+There is no proper validation of time entries as of now:
+
+- should your end time be before your starting time, this will be reflected in your reporting.
+- should the timeboxes defined for various projects overlap, this will again be reflected in your reporting.
+
+Installing
+==========
+
+
+Developing
+==========
+
+Developers
+==========
+Refactored into ``tt`` by
+`@dribnif <https://github.com/dribnif>`_
+
+Based on ``ti`` originally created by Shrikant Sharat
 (`@sharat87 <https://twitter.com/#!sharat87>`_).
 and
 (`@tbekolay <https://github.com/tbekolay>`_) and friends on GitHub.
+
+
 
 License
 =======
