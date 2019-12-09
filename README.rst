@@ -1,6 +1,6 @@
-=================================
-tt -- A silly simple time tracker
-=================================
+=======================================
+tt -- A command-line based time tracker
+=======================================
 
 ``tt`` is a small stateful command line time-tracking application implemented in python.
 Simple basic usage looks like this::
