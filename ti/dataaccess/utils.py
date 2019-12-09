@@ -6,7 +6,7 @@ from ti.exceptz.exceptz import NonexistentDatasource
 default_datasource_type = 'JSON'
 
 json_default_env_var_name = 'SHEET_FILE'
-json_default_db_location = '~/.ti-sheet'
+json_default_db_location = '~/.tt-sheet.json'
 
 
 def get_data_store(type=default_datasource_type):
