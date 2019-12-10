@@ -13,8 +13,6 @@ Alternatively you can skip the colon when entering times::
     $ tt start my-project 0915
     $ tt stop 10:20
 
-``tt`` what else .
-
 What is tt?
 ===========
 
@@ -41,6 +39,9 @@ A *time box* is defined by::
 * a starting point
 * an end point
 * optional notes
+
+Stateful time box definition
+----------------------------
 
 Another, somewhat hidden dimension is the *current date* - or day - which is *implicitly* **today**, your machine's current ``date``, unless explicitly overriden by using the command line environment variable ``TT_CURRENT_DAY``::
 
@@ -183,4 +184,4 @@ and
 License
 =======
 
-`MIT License <http://mitl.sharats.me>`_.
+MIT License
