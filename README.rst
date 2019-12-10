@@ -17,7 +17,7 @@ What is tt?
 ===========
 
 ``tt`` is a simple command line time tracker. It is based on `ti <https://github.com/tbekolay/ti>`_,
-by Shrikant Sharat and Trevor Bekolay and is written in Python. Ti is in turn inspired by both
+by Shrikant Sharat and Trevor Bekolay and is written in Python. ``ti`` is in turn inspired by both
 `timed <http://adeel.github.com/timed>`_, and the elegantly simple `t <http://stevelosh.com/projects/t/>`_.
 
 
@@ -45,8 +45,10 @@ Stateful time box definition
 
 Another, somewhat hidden dimension is the *current date* - or day - which is *implicitly* **today**, your machine's current ``date``, unless explicitly overriden by using the command line environment variable ``TT_CURRENT_DAY``::
 
-  $ export TT_CURRENT_DAY="2023-08-30" ### note the ISO formatting
-  $ # any tt commands issued in between here, will refer to the 30th of August 2023
+  $ export TT_CURRENT_DAY="2023-08-30" 
+  $ # note the ISO formatting
+  $ # any tt commands issued in between here and the unset command 
+  $ # will refer to the 30th of August 2023
 
   $ tt start future-task 00:00
   $ tt note "Hoverboarding isn't what it used to be"
@@ -79,7 +81,7 @@ Adding a new time box
   $ tt start fav-customer 12:15
   Started working on fav-customer at 12:15.
 
-  $ ti status
+  $ tt status
   You have been working on fav-customer for about 2 hours, since 12:15; It is now 14:12.
 
   $ tt stop 12:30
@@ -175,9 +177,7 @@ Refactored into ``tt`` by
 `@dribnif <https://github.com/dribnif>`_
 
 Based on ``ti`` originally created by Shrikant Sharat
-(`@sharat87 <https://twitter.com/#!sharat87>`_).
-and
-(`@tbekolay <https://github.com/tbekolay>`_) and friends on GitHub.
+(`@sharat87 <https://twitter.com/#!sharat87>`_), and maintained by (`@tbekolay <https://github.com/tbekolay>`_).
 
 
 
