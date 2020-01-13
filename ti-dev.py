@@ -47,17 +47,22 @@ def parse_args(argv=sys.argv):
         args = {}
 
     elif head in ['start']:
-        if not tail or len(tail) != 2:
+        datestring = ' '.join(tail[1:])
+        if tail and len(tail) == 1:
+            datestring = "now"
+        elif not tail or len(tail) != 2:
             raise BadArguments("Please provide a name for the activity and the start time, like so:\n$ ti start project 14:15")
 
         fn = start.action_start
         args = {
             'colorizer': colorizer,
             'name': tail[0],
-            'time': to_datetime(' '.join(tail[1:])),
+            'time': to_datetime(datestring),
         }
 
     elif head in ['stop']:
+        if not tail or len(tail) == 0:
+            tail = ["now"]
         fn = stop.action_stop
         args = {'colorizer': colorizer, 'time': to_datetime(' '.join(tail))}
 

@@ -12,6 +12,11 @@ TI_TODAY_ENV_VAR = "TI_CURRENT_DAY"
 def get_local_timezone():
     return get_localzone()
 
+
+def get_now():
+    return datetime.now()
+
+
 #   returns a datetime
 def utc_to_local(utc_dt):
     local_tz = get_local_timezone()
@@ -38,7 +43,7 @@ def local_to_utc(local_dt):
 
 
 def formatted_str_for_isotime_str(isotime_str, format_str):
-    localtime = isotime_utc_to_local(isotime_str);
+    localtime = isotime_utc_to_local(isotime_str)
     return localtime.strftime(format_str)
 
 
@@ -47,6 +52,8 @@ def get_current_day():
     return today_value
 
 def parse_time_multiformat(timestr):
+    if timestr == "now":
+        return get_now()
     for time_format in ["%H:%M", "%H%M"]:
         try:
             settime = datetime.strptime(timestr, time_format)
