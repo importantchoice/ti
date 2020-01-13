@@ -62,7 +62,7 @@ class TestDateutils(TestCase):
         self.assertEqual(20, time_parsed.hour)
         self.assertEqual(15, time_parsed.minute)
 
-    def test_parse_time_multiformat_not_separated(self):
+    def test_parse_time_multiformat_not_separated_broken(self):
         self.assertRaises(TIError, parse_time_multiformat, "51n3p")
 
     @mock.patch('ti.dateutils.dateutils.get_local_timezone')
